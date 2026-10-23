@@ -6,7 +6,7 @@
       "name": "CommandCode Provider",
       "description": "CLIProxyAPI v8 的 CommandCode 原生提供商插件，支持认证、模型发现、请求执行和额度查询。",
       "author": "commandcode-go-cliproxyapi",
-      "repository": "https://github.com/careerisx/cpa-plusins",
+      "repository": "https://github.com/careerisx/commandcode-cliproxyapi-provider",
       "version": "0.1.3",
       "license": "MIT",
       "tags": ["provider", "commandcode"]
@@ -16,7 +16,7 @@
       "name": "New API Provider",
       "description": "CLIProxyAPI v8 的 New API 原生提供商插件，支持逐认证站点配置、模型发现、协议适配和额度查询。",
       "author": "newapi-provider",
-      "repository": "https://github.com/careerisx/cpa-plusins",
+      "repository": "https://github.com/careerisx/newapi-cliproxy-provider",
       "version": "0.1.0",
       "license": "MIT",
       "tags": ["provider", "newapi"]
