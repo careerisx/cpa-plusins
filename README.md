@@ -8,8 +8,8 @@ CLIProxyAPI v8 自定义插件商店索引。两个插件的源码、版本和 R
 
 | 插件 | 插件 ID | ProviderID | 展示兜底版本 | 源码与 Release 仓库 |
 |---|---|---|---|---|
-| CommandCode Provider | `commandcode-go-cliproxyapi` | `commandcode` | `0.1.3` | [careerisx/commandcode-cliproxyapi-provider](https://github.com/careerisx/commandcode-cliproxyapi-provider) |
-| New API Provider | `newapi-provider` | `newapi` | `0.1.0` | [careerisx/newapi-cliproxy-provider](https://github.com/careerisx/newapi-cliproxy-provider) |
+| CommandCode Provider | `commandcode-cliproxyapi-provider` | `commandcode` | `0.2.0` | [careerisx/commandcode-cliproxyapi-provider](https://github.com/careerisx/commandcode-cliproxyapi-provider) |
+| New API Provider | `newapi-provider` | `newapi` | `0.2.0` | [careerisx/newapi-cliproxy-provider](https://github.com/careerisx/newapi-cliproxy-provider) |
 
 插件 ID 对应宿主注册名称和商店索引中的 `id`，不是源码目录名，也不是认证和模型归属使用的 ProviderID。索引的 `author` 与现有插件注册元信息保持一致，不代表仓库所有者；许可及版权声明见各仓库 LICENSE 文件。
 
@@ -62,7 +62,9 @@ plugins:
 | 发布权限 | 使用仓库内置 `GITHUB_TOKEN` 的 `contents: write`，无需另配 PAT |
 | 发布内容 | 当前插件 ZIP 和 `checksums.txt` |
 
-构建时使用 Go 模块路径注入版本，不使用 GitHub 仓库名推导包路径。CommandCode 的模块名及插件 ID 仍为 `commandcode-go-cliproxyapi`。
+构建时使用 Go 模块路径注入版本，不使用 GitHub 仓库名推导包路径。CommandCode 的模块名、插件 ID 和发布产物名称统一为 `commandcode-cliproxyapi-provider`。
+
+CommandCode 重命名后，宿主会将其识别为新的插件 ID。已有安装需要迁移 `plugins.configs` 下的配置 key，改用新插件的管理页面地址；旧页面使用的浏览器存储不会自动迁移。认证和模型归属的 ProviderID 仍为 `commandcode`，不需要改名。重命名后的源码应以新 tag 发布匹配新名称的 ZIP，再同步线上索引；已有 tag 和 Release 不会因源码改名而自动更新，不要覆盖旧版本。
 
 未指定版本注入的本地构建仍使用源码默认版本：CommandCode `0.1.3`、New API `0.1.0`。正式 Release 的插件注册版本则始终来自本次 tag。
 
@@ -87,7 +89,7 @@ ZIP 命名格式：
 
 | 插件仓库 | ZIP | ZIP 根目录中的文件 |
 |---|---|---|
-| CommandCode | `commandcode-go-cliproxyapi_0.1.3_linux_amd64.zip` | `commandcode-go-cliproxyapi.so` |
+| CommandCode | `commandcode-cliproxyapi-provider_0.1.3_linux_amd64.zip` | `commandcode-cliproxyapi-provider.so` |
 | New API | `newapi-provider_0.1.0_linux_amd64.zip` | `newapi-provider.so` |
 
 ZIP 内只包含该插件共享库，不含外层目录或构建时生成的 C 头文件。每个 Release 单独附带 `checksums.txt`，内容由实际 ZIP 的 SHA-256 摘要生成，工作流在发布前执行校验。
