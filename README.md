@@ -1,23 +1,29 @@
 # cpa-plusins
 
-CLIProxyAPI v8 自定义插件商店索引。两个插件的源码、版本和 Release 在独立仓库中维护，本仓库只负责登记和使用说明。
+CLIProxyAPI 自定义插件商店，提供 CommandCode 和 New API 两个提供商插件。添加本商店后，可在 CLIProxyAPI 管理页面安装插件，再通过各插件的管理页面配置账号和上游服务。
 
-索引仓库：<https://github.com/careerisx/cpa-plusins>。
+## 可用插件
 
-## 插件列表
+| 插件 | 主要功能 | 使用说明 | 下载 |
+|---|---|---|---|
+| CommandCode Provider | 接入 CommandCode，提供认证、模型发现、请求转发和额度查询 | [CommandCode 使用说明](https://github.com/careerisx/commandcode-cliproxyapi-provider#readme) | [Releases](https://github.com/careerisx/commandcode-cliproxyapi-provider/releases) |
+| New API Provider | 按认证配置上游站点，适配 Chat Completions、Messages、Responses，查看模型和额度 | [New API 使用说明](https://github.com/careerisx/newapi-cliproxy-provider#readme) | [Releases](https://github.com/careerisx/newapi-cliproxy-provider/releases) |
 
-| 插件 | 插件 ID | ProviderID | 展示兜底版本 | 源码与 Release 仓库 |
-|---|---|---|---|---|
-| CommandCode Provider | `commandcode-cliproxyapi-provider` | `commandcode` | `0.2.0` | [careerisx/commandcode-cliproxyapi-provider](https://github.com/careerisx/commandcode-cliproxyapi-provider) |
-| New API Provider | `newapi-provider` | `newapi` | `0.2.0` | [careerisx/newapi-cliproxy-provider](https://github.com/careerisx/newapi-cliproxy-provider) |
+两个插件可按需安装，不要求同时启用。
 
-插件 ID 对应宿主注册名称和商店索引中的 `id`，不是源码目录名，也不是认证和模型归属使用的 ProviderID。索引的 `author` 与现有插件注册元信息保持一致，不代表仓库所有者；许可及版权声明见各仓库 LICENSE 文件。
+## 使用条件
 
-New API 的认证配置与管理入口见其 [README](https://github.com/careerisx/newapi-cliproxy-provider/blob/main/README.md)。
+- 使用支持原生动态插件的 CLIProxyAPI v8，不能使用禁用插件功能的宿主构建。
+- 当前提供的预编译插件面向 **Linux x86_64（`linux/amd64`）**，不是 Windows、macOS 或 ARM64 安装包。
+- 运行环境需要兼容插件依赖的 glibc；不要直接将其当作 Alpine/musl 插件使用。
+- 宿主能够访问商店索引、GitHub Release 下载地址以及对应插件的上游服务。
+- 准备好 CLIProxyAPI 管理页面的访问凭据；上游账号或 API key 按各插件说明配置。
 
-## 添加到 CLIProxyAPI 插件商店
+## 方式一：通过插件商店安装
 
-将以下内容合并到宿主现有配置的 `plugins` 节中，不要重复定义同名 YAML 根节点：
+### 1. 添加商店源
+
+在 CLIProxyAPI 配置文件中合并以下内容。如果已有 `plugins` 节，请在原配置中补充，避免重复定义；已有 `store-sources` 时追加本商店地址。
 
 ```yaml
 plugins:
@@ -27,93 +33,66 @@ plugins:
     - "https://raw.githubusercontent.com/careerisx/cpa-plusins/main/registry.json"
 ```
 
-索引文件需要先推送到本仓库的 `main` 分支，并确保宿主能够访问上述 URL。
+`dir` 是宿主加载插件的目录，可按实际部署位置调整。添加第三方商店不会替换官方商店。
 
-`store-sources` 追加第三方商店，不替换官方商店。这只是在使用者的宿主中添加本仓库，不会自动将插件提交到官方商店。
+### 2. 安装并配置
 
-**登记索引不等于已经发布插件。** 安装需要对应插件仓库中已发布的 Release、匹配平台的 ZIP 和校验和；当前工作流仅构建 `linux/amd64`。宿主本身也必须支持原生插件，不能使用禁用插件的构建。
+1. 保存配置并重启 CLIProxyAPI，使商店源配置生效。
+2. 打开 CLIProxyAPI 管理页面中的插件商店，找到 CommandCode Provider 或 New API Provider。
+3. 安装所需插件。如果宿主提示需要重启，请按提示操作。
+4. 按对应插件的使用说明启用插件，并在其管理页面添加认证。
+5. 在宿主中确认模型已可用，再在客户端选择对应模型。
 
-## 索引与更新来源
+本仓库只提供插件商店索引，不需要作为单独服务部署，也不需要把本仓库放到宿主的插件目录。
 
-根目录 [registry.json](./registry.json) 使用 `schema_version: 1`，在 `plugins` 数组中登记两个插件。每个条目的 `repository` 和对应插件源码中的 `GitHubRepository` 均指向该插件的独立 GitHub 仓库，而不是本索引仓库。
+## 方式二：手动安装
 
-| 字段 | 作用 |
-|---|---|
-| `id` | 插件稳定标识，保持与插件注册名称一致 |
-| `name`、`description` | 商店展示名称及说明 |
-| `author` | 与插件当前注册元信息保持一致 |
-| `repository` | 对应插件的 GitHub 源码及 Release 仓库 |
-| `version` | 展示兜底版本，不决定实际安装版本 |
-| `license`、`tags` | 许可及分类信息 |
+不通过插件商店时，可从各插件的 Releases 页面下载对应版本的 `linux_amd64.zip` 和同一 Release 的 `checksums.txt`。
 
-宿主分别读取两个插件仓库的 latest release，获取实际安装版本及匹配的资产。发布新版本不需要将固定下载 URL 写回索引，也不需要跨仓提交；可以按需手动更新索引中的展示兜底版本。
-
-## 通过 tag 自动发布
-
-两个插件仓库各自提供 `.github/workflows/release.yml`，互不依赖，不需要统一版本号。
-
-| 项目 | 发布行为 |
-|---|---|
-| 触发条件 | 向对应插件仓库推送正式 `vX.Y.Z` tag，例如 `v0.1.3`；不支持预发布或构建后缀 |
-| Go 版本 | 读取各自 `go.mod`，当前为 `1.26.7` |
-| 构建环境 | `ubuntu-22.04`，`CGO_ENABLED=1`，`GOOS=linux`，`GOARCH=amd64`，`GOWORK=off` |
-| 构建方式 | `go build -mod=readonly -trimpath -buildmode=c-shared`，不启用 debug tag |
-| 版本来源 | 从 tag 去掉前导 `v`，通过 `-ldflags -X` 注入 `internal/plugin.pluginVersion` |
-| 发布权限 | 使用仓库内置 `GITHUB_TOKEN` 的 `contents: write`，无需另配 PAT |
-| 发布内容 | 当前插件 ZIP 和 `checksums.txt` |
-
-构建时使用 Go 模块路径注入版本，不使用 GitHub 仓库名推导包路径。CommandCode 的模块名、插件 ID 和发布产物名称统一为 `commandcode-cliproxyapi-provider`。
-
-CommandCode 重命名后，宿主会将其识别为新的插件 ID。已有安装需要迁移 `plugins.configs` 下的配置 key，改用新插件的管理页面地址；旧页面使用的浏览器存储不会自动迁移。认证和模型归属的 ProviderID 仍为 `commandcode`，不需要改名。重命名后的源码应以新 tag 发布匹配新名称的 ZIP，再同步线上索引；已有 tag 和 Release 不会因源码改名而自动更新，不要覆盖旧版本。
-
-未指定版本注入的本地构建仍使用源码默认版本：CommandCode `0.1.3`、New API `0.1.0`。正式 Release 的插件注册版本则始终来自本次 tag。
-
-### 发布顺序
-
-1. 在对应插件仓库提交并推送源码及工作流；本索引的地址改动也需要提交并推送。
-2. 为包含工作流的目标提交创建正式版本 tag，并将 tag 推送到对应插件仓库。
-3. 在该仓库的 Actions 页面查看构建和发布结果。
-4. 确认 Release 中存在该版本的 ZIP 及 `checksums.txt`，再通过 CLIProxyAPI 商店安装或更新。
-
-已有 tag 在工作流加入前就已推送，不会因后来新增工作流而自动触发。工作流不覆盖已有同名 Release；已发布版本应保持不变，修复后使用新 tag 发布。
-
-### Release 资产布局
-
-ZIP 命名格式：
-
-```text
-<pluginID>_<version>_linux_amd64.zip
-```
-
-首次按当前默认版本发布时，两个独立仓库分别生成：
-
-| 插件仓库 | ZIP | ZIP 根目录中的文件 |
+| 插件 | ZIP 文件名格式 | 解压后的插件文件 |
 |---|---|---|
-| CommandCode | `commandcode-cliproxyapi-provider_0.1.3_linux_amd64.zip` | `commandcode-cliproxyapi-provider.so` |
-| New API | `newapi-provider_0.1.0_linux_amd64.zip` | `newapi-provider.so` |
+| CommandCode | `commandcode-cliproxyapi-provider_<版本>_linux_amd64.zip` | `commandcode-cliproxyapi-provider.so` |
+| New API | `newapi-provider_<版本>_linux_amd64.zip` | `newapi-provider.so` |
 
-ZIP 内只包含该插件共享库，不含外层目录或构建时生成的 C 头文件。每个 Release 单独附带 `checksums.txt`，内容由实际 ZIP 的 SHA-256 摘要生成，工作流在发布前执行校验。
+操作步骤：
 
-插件使用 CGO 动态库，目标宿主环境需要兼容构建产物的系统库。当前工作流没有承诺 Alpine/musl 或比构建环境更旧的 glibc 兼容性。
+1. 下载所需插件的 ZIP 和校验和文件到同一目录。
+2. 可执行 `sha256sum -c checksums.txt` 检查下载文件是否完整。
+3. 停止 CLIProxyAPI，将 ZIP 中的 `.so` 解压到宿主配置的 `plugins.dir` 目录，不要只复制 ZIP。
+4. 确认 `plugins.enabled: true`，并按对应插件说明配置启用项。
+5. 启动 CLIProxyAPI，检查插件是否加载，再配置认证。
 
-## 验证建议
+容器部署时，插件文件应位于容器内的 `plugins.dir` 对应路径，并挂载到持久化目录，避免重建容器后丢失。宿主进程需要有读取插件文件的权限；通过商店安装和更新时还需要目录写权限。
 
-本次配置未在本机执行构建、测试或远程发布。可以按需手动检查索引 JSON（需要已有 Node.js）：
+## 更新与卸载
 
-```bash
-node -e 'const fs = require("node:fs"); const r = JSON.parse(fs.readFileSync("registry.json", "utf8")); console.log("schema_version:", r.schema_version); console.table(r.plugins.map(({id, repository, version}) => ({id, repository, version})));'
-```
+| 操作 | 建议方式 |
+|---|---|
+| 商店更新 | 在插件商店检查更新并安装；提示需重启时重启宿主 |
+| 手动更新 | 停止宿主，备份原插件和配置，使用新版本 ZIP 中的 `.so` 替换旧文件，再启动宿主 |
+| 暂时停用 | 按插件文档将对应配置中的 `enabled` 设为 `false`，使配置生效 |
+| 卸载 | 使用宿主提供的卸载操作；手动卸载时先停止宿主，再移除对应 `.so` 和不再使用的启用配置 |
 
-发布后，下载对应 Release 的 ZIP 和 `checksums.txt` 到同一目录，可以在 Linux 中执行：
+更新或卸载前建议备份宿主配置和认证文件。不要为了清理插件而删除整个认证目录。
 
-```bash
-sha256sum -c checksums.txt
-```
+## 常见问题
 
-最终应在支持原生插件的 Linux/amd64 CLIProxyAPI 宿主中确认商店读取、资产下载、插件加载和注册版本。索引解析成功或工作流文件已创建不代表在线安装已经验证。
+| 问题 | 排查方式 |
+|---|---|
+| 商店里找不到插件 | 检查商店源 URL、配置是否生效，以及宿主能否访问索引地址 |
+| 能看到插件但下载失败 | 检查对应仓库是否有已发布的匹配平台安装包，并检查 GitHub 下载访问情况 |
+| 显示的版本与预期不一致 | 区分商店版本和已安装版本；无法获取 Release 信息时，商店可能显示缓存或索引兜底版本，刷新页面不等于更新已安装插件 |
+| 插件文件存在但没有加载 | 检查宿主是否支持原生插件、系统架构、文件路径、读取权限及启动日志中的动态库加载错误 |
+| 插件加载后没有模型 | 按插件说明添加有效认证，确认上游地址和凭据可用，并检查模型发现结果 |
+| 容器重建后插件消失 | 检查插件目录是否已持久化挂载，以及配置路径是否指向容器内实际目录 |
+| CommandCode 改名后配置未生效 | 当前插件 ID 为 `commandcode-cliproxyapi-provider`；旧安装需迁移配置 key，并从新插件菜单重新打开管理页面 |
 
-## 参考资料
+CommandCode 的认证和模型归属标识仍为 `commandcode`；New API 的认证和模型归属标识为 `newapi`。它们与插件 ID 不同，不要全局替换。
 
-- [插件开发文档：商店索引与发布要求](https://cliproxyapi.gh.miniasp.com/cn/plugin/development.html)
-- [官方插件商店索引](https://raw.githubusercontent.com/router-for-me/CLIProxyAPI-Plugins-Store/main/registry.json)
-- [CLIProxyAPI 配置说明](https://help.router-for.me/cn/configuration/options)
+请妥善保管宿主管理密码、API key 和认证文件，不要将其提交到公开仓库，也不要把插件管理页面直接暴露给不可信访问者。
+
+## 相关链接
+
+- [CLIProxyAPI 官方配置说明](https://help.router-for.me/cn/configuration/options)
+- [CommandCode 插件](https://github.com/careerisx/commandcode-cliproxyapi-provider)
+- [New API 插件](https://github.com/careerisx/newapi-cliproxy-provider)

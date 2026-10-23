@@ -7,7 +7,7 @@
       "description": "CLIProxyAPI v8 的 CommandCode 原生提供商插件，支持认证、模型发现、请求执行和额度查询。",
       "author": "commandcode-cliproxyapi-provider",
       "repository": "https://github.com/careerisx/commandcode-cliproxyapi-provider",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "license": "MIT",
       "tags": ["provider", "commandcode"]
     },
